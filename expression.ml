@@ -118,7 +118,7 @@ let rec derivative (e : expression) : expression =
                    Binop (Pow, e1, Binop (Sub, e2, Num 1.))) ;;
      
 (* A helpful function for testing. See the writeup. *)
-let checkexp strs xval =
+let _checkexp strs xval =
   print_string ("Checking expression: " ^ strs ^ "\n");
   let parsed = parse strs in
   (print_string "contains variable : ";
@@ -141,7 +141,8 @@ let rec find_zero (expr : expression)
               (epsilon : float)
               (limit : int)
             : float option =
-  let ev_guess = evaluate expr guess in         
+  let ev_guess = evaluate expr guess in
+  (* Determines next guess using Newton's method. *)         
   let next_guess = guess -. (ev_guess /. (evaluate (derivative expr) guess)) in
   if limit > 0 then 
     if abs_float ev_guess < epsilon then Some guess
@@ -155,7 +156,7 @@ unimplemented if you do not want to do it. See writeup for
 instructions.
 ......................................................................*)
 
-let find_zero_exact (e : expression) : expression option =
+let find_zero_exact (_e : expression) : expression option =
   failwith "find_zero_exact not implemented" ;;
 
 (*======================================================================

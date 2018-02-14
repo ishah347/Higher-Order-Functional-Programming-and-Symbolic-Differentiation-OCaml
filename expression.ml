@@ -46,7 +46,11 @@ expression contains a variable "x". For example:
 ......................................................................*)
 
 let rec contains_var (e : expression) : bool =
-    failwith "contains_var not implemented" ;;
+  match e with
+  | Num _ -> false
+  | Var -> true
+  | Binop (_, a, b) -> contains_var a || contains_var b
+  | Unop (_, a) -> contains_var a ;;
 
 (*......................................................................
 Problem 2.2: The function "evaluate" evaluates an expression for a
@@ -58,7 +62,24 @@ particular value of x. Don't worry about specially handling the
 ......................................................................*)
 
 let rec evaluate (e : expression) (x : float) : float =
-  failwith "evaluate not implemented" ;;
+  match e with
+  | Num n -> n
+  | Var -> x
+  | Binop (b, e1, e2) ->
+      (let ev1, ev2 = evaluate e1 x, evaluate e2 x in
+      match b with
+      | Add -> ev1 +. ev2
+      | Sub -> ev1 -. ev2
+      | Mul -> ev1 *. ev2
+      | Div -> ev1 /. ev2
+      | Pow -> ev1 ** ev2)
+  | Unop (u, e1) ->
+      let ev1 = evaluate e1 x in
+      match u with
+      | Sin -> sin ev1
+      | Cos -> cos ev1
+      | Ln -> log ev1
+      | Neg -> -. ev1 ;;
 
 (*......................................................................
 Problem 2.d: The "derivative" function returns the expression that
@@ -72,25 +93,29 @@ writeup. See the writeup for instructions.
 let rec derivative (e : expression) : expression =
   match e with
   | Num _ -> Num 0.
-  | Var -> failwith "derivative: Var not implemented"
+  | Var -> Num 1.
   | Unop (u, e1) ->
      (match u with
-      | Sin -> failwith "derivative: Sin not implemented"
+      | Sin -> Binop (Mul, Unop (Cos, e1), derivative e1)
       | Cos -> Binop (Mul, Unop (Neg, Unop (Sin, e1)), derivative e1)
-      | Ln -> failwith "derivative: Ln not implemented"
-      | Neg -> Unop(Neg,derivative e1))
+      | Ln -> Binop (Div, derivative e1, e1)
+      | Neg -> Unop (Neg, derivative e1))
   | Binop (b, e1, e2) ->
      match b with
      | Add -> Binop (Add, derivative e1, derivative e2)
      | Sub -> Binop (Sub, derivative e1, derivative e2)
      | Mul -> Binop (Add, Binop (Mul, e1, derivative e2),
                     Binop (Mul, derivative e1, e2))
-     | Div -> failwith "derivative: div not implemented"
+     | Div -> Binop (Div, Binop (Sub, Binop (Mul, derivative e1, e2), 
+                    Binop (Mul, e1, derivative e2)), Binop (Pow, e2, Num 2.))
      | Pow ->
         (* split based on whether the exponent has any variables *)
-        if failwith "derivative: Pow not implemented"
-        then failwith "derivative: Pow case 1 not implemented"
-        else failwith "derivative: Pow case 2 not implemented" ;;
+        if contains_var e2
+        then Binop (Mul, Binop (Pow, e1, e2), 
+                   Binop (Add, Binop (Mul, derivative e2, Unop (Ln, e1)), 
+                         Binop (Div, Binop (Mul, derivative e1, e2), e1)))
+        else Binop (Mul, Binop (Mul, e2, derivative e1), 
+                   Binop (Pow, e1, Binop (Sub, e2, Num 1.))) ;;
      
 (* A helpful function for testing. See the writeup. *)
 let checkexp strs xval =
@@ -111,12 +136,17 @@ let checkexp strs xval =
 Problem 2.4: Zero-finding. See writeup for instructions.
 ......................................................................*)
 
-let find_zero (expr : expression)
+let rec find_zero (expr : expression)
               (guess : float)
               (epsilon : float)
               (limit : int)
             : float option =
-  failwith "find_zero not implemented" ;;
+  let ev_guess = evaluate expr guess in         
+  let next_guess = guess -. (ev_guess /. (evaluate (derivative expr) guess)) in
+  if limit > 0 then 
+    if abs_float ev_guess < epsilon then Some guess
+    else find_zero expr next_guess epsilon (limit - 1)
+  else None ;;  
 
 (*......................................................................
 Problem 2.5: Challenge problem -- exact zero-finding. This problem is
@@ -137,4 +167,4 @@ about your responses and will use them to help guide us in creating
 future assignments.
 ......................................................................*)
 
-let minutes_spent_on_part2 () : int = failwith "not provided" ;;
+let minutes_spent_on_part2 () : int = 240 ;;

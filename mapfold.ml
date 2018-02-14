@@ -30,7 +30,7 @@ in a list.
 ......................................................................*)
 
 let negate_all (nums : int list) : int list = 
-  failwith "negate_all not implemented" ;;
+  List.map (fun x -> - x) nums ;; 
 
 (*......................................................................
 Problem 1.2: The function "sum" returns the sum of the elements in 
@@ -38,7 +38,7 @@ a list.
 ......................................................................*)
 
 let sum (nums : int list) : int =
-  failwith "sum not implemented" ;;
+  List.fold_left (+) 0 nums ;;
 
 (*......................................................................
 Problem 1.3: The function "sum_rows" takes a list of "rows", each an 
@@ -50,7 +50,7 @@ is equal to the sum of the corresponding rows in the input. For example:
 ......................................................................*)
 
 let sum_rows (rows : int list list) : int list =
-  failwith "sum_rows not implemented" ;;
+  List.map sum rows ;;
 
 (*......................................................................
 Problem 1.4: The function "filter_odd" retains only the odd numbers
@@ -61,7 +61,7 @@ from the given list. For example:
 ......................................................................*)
 
 let filter_odd (nums : int list) : int list =
-  failwith "filter_odd not implemented" ;;
+  List.filter (fun x -> x mod 2 <> 0) nums ;;
 
 (*......................................................................
 Problem 1.5: The function "num_occurs" returns the number of times a given
@@ -72,7 +72,7 @@ number appears in a list. For example:
 ......................................................................*)
 
 let num_occurs (n : int) (nums : int list) : int =
-    failwith "num_occurs not implemented" ;;
+  sum (List.filter (fun x -> x = n) nums) / n ;;
 
 (*......................................................................
 Problem 1.6: The function "super_sum" sums all of the numbers in a list
@@ -83,7 +83,7 @@ of int lists. For example:
 ......................................................................*)
 
 let super_sum (nlists : int list list) : int =
-  failwith "super_sum not implemented" ;;
+  sum (sum_rows nlists) ;;
 
 (*......................................................................
 Problem 1.7: The function "filter_range" takes a list lst and a pair
@@ -102,7 +102,8 @@ within the range, and the result is the empty list.
 ......................................................................*)
 
 let filter_range (nums : int list) (range : int * int) : int list =
-  failwith "filter_range not implemented" ;;
+  let (x, y) = range in 
+  List.filter (fun z -> z >= x && z <= y) nums ;;
 
 (*......................................................................
 Problem 1.8: The function "float_of_ints" converts an int list into 
@@ -110,7 +111,7 @@ a float list.
 ......................................................................*)
 
 let floats_of_ints (nums : int list) : float list =
-  failwith "floats_of_ints not implemented" ;;
+  List.map float nums ;;
 
 (*......................................................................
 Problem 1.9: The function "log10s" applies the log10 function to all
@@ -122,7 +123,7 @@ numbers n <= 0, so undefined results should be None. For example:
 ......................................................................*)
 
 let log10s (lst : float list) : float option list =
-  failwith "log10s not implemented" ;;
+  List.map (fun x -> if x <= 0. then None else Some (log10 x)) lst ;;
 
 (*......................................................................
 Problem 1.10: The function "deoptionalize" extracts values from a list 
@@ -133,7 +134,10 @@ of options. For example:
 ......................................................................*)
 
 let deoptionalize (lst : 'a option list) : 'a list =
-  failwith "deoptionalize not implemented" ;;
+  List.fold_right (fun x y -> 
+    match x with 
+      | Some value -> value :: y
+      | None -> y) lst [] ;;
 
 (*......................................................................
 Problem 1.11: The function "some_sum" sums all of the numbers in a list 
@@ -141,7 +145,7 @@ of int options but ignores None values.
 ......................................................................*)
 
 let some_sum (nums : int option list) : int =
-  failwith "some_sum not implemented" ;;
+  sum (deoptionalize nums) ;;
 
 (*......................................................................
 Problem 1.12: The function "mult_odds" returns the product of all
@@ -152,7 +156,7 @@ of the odd elements of a list. For example:
 ......................................................................*)
 
 let mult_odds (nums : int list) : int =
-  failwith "mult_odds not implemented" ;;
+  List.fold_left ( * ) 1 (filter_odd nums) ;;
 
 (*......................................................................
 Problem 1.13: The function "concat" concatenates a list of lists. For
@@ -163,7 +167,7 @@ example:
 ......................................................................*)
 
 let concat (lists : 'a list list) : 'a list =
-  failwith "concat not implemented" ;;
+  List.fold_left (@) [] lists ;;
 
 (*......................................................................
 Problem 1.14: We begin by defining a type that represents a student 
@@ -182,7 +186,7 @@ type year = int
 type student = name * year
 
 let filter_by_year (slist : student list) (yr : year) : name list =
-  failwith "filter_by_year not implemented" ;;
+  List.fold_right (fun (x, y) z -> if y == yr then x :: z else z) slist [] ;;
 
 (*======================================================================
 Time estimate
@@ -193,4 +197,4 @@ about your responses and will use them to help guide us in creating
 future assignments.
 ......................................................................*)
 
-let minutes_spent_on_part1 () : int = failwith "not provided" ;;
+let minutes_spent_on_part1 () : int = 180 ;;
